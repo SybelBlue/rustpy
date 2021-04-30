@@ -7,3 +7,8 @@ pub struct ParseError {
     pub line: usize,
     pub col: usize,
 }
+
+trait ParseStream<T> {
+    fn next(&mut self) -> ParseResult<T>;
+    fn try_match(&mut self, items: Vec<T>) -> ParseResult<Vec<T>>;
+}
