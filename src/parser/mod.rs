@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 pub mod lexer;
 
 pub type ParseResult<T> = Result<T, ParseError>;
@@ -16,7 +14,7 @@ impl FilePos {
     }
 }
 
-impl Display for FilePos {
+impl std::fmt::Display for FilePos {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}:{}", self.line, self.col)
     }
@@ -35,7 +33,7 @@ impl ParseError {
     }
 }
 
-impl Display for ParseError {
+impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Error parsing {}\n\t{}", 
             self.src_path.clone().map_or(
