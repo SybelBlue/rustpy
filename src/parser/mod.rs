@@ -63,6 +63,18 @@ pub trait ParseStream<T> {
     fn try_match(&mut self, items: Vec<T>) -> ParseResult<Vec<T>>;
 }
 
+impl<T> Iterator for dyn ParseStream<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Ok(t) = self.next() {
+            Some(t)
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct StringStream {
     file_pos: FilePos,
@@ -102,7 +114,7 @@ impl ParseStream<char> for StringStream {
                     ParseError::from_str(format!("Expected {}, got {}", b, a), f_pos)
                 )
             } else {
-                f_pos.advance(&a);
+                f_pos.advance(&a)
             }
         }
         self.file_pos = f_pos;
