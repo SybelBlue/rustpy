@@ -45,6 +45,10 @@ impl ParseError {
     pub fn eof(file_pos: FilePos, src_path: Option<String>) -> Self {
         Self { file_pos, src_path, msg: String::from("End of file")}
     }
+
+    pub fn with_src_path(&self, src_path: String) -> Self {
+        Self { src_path: Some(src_path), msg: self.msg.clone(), file_pos: self.file_pos }
+    }
 }
 
 impl std::fmt::Display for ParseError {

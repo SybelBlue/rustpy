@@ -1,3 +1,5 @@
+use std::fs::read_to_string;
+
 use crate::parser::*;
 
 pub trait ParseStream<T> {
@@ -58,5 +60,31 @@ impl ParseStream<char> for StringStream {
         self.file_pos = f_pos;
         self.pos += items.len();
         Ok(items)
+    }
+}
+
+#[derive(Debug)]
+pub struct FileStream {
+    src_path: String,
+    string_stream: StringStream,
+}
+
+impl FileStream {
+    pub fn new(src_path: String) -> std::io::Result<Self> {
+        let s = read_to_string(src_path.clone())?;
+        let string_stream = StringStream::new(s.as_str());
+        Ok(Self { src_path, string_stream })
+    }
+}
+
+impl ParseStream<char> for FileStream {
+    fn next(&mut self) -> ParseResult<char> {
+        let r = self.string_stream.next();
+        r.map_err(|e| e.with_src_path(self.src_path.clone()))
+    }
+
+    fn try_match(&mut self, items: Vec<char>) -> ParseResult<Vec<char>> {
+        let r = self.string_stream.try_match(items);
+        r.map_err(|e| e.with_src_path(self.src_path.clone()))
     }
 }
