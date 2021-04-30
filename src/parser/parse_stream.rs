@@ -63,7 +63,7 @@ impl ParseStream<char> for StringStream {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct FileStream {
     src_path: String,
     string_stream: StringStream,
