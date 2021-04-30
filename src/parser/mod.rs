@@ -67,11 +67,7 @@ impl<T> Iterator for dyn ParseStream<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Ok(t) = self.next() {
-            Some(t)
-        } else {
-            None
-        }
+        self.next().ok()
     }
 }
 
