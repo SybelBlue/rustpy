@@ -20,10 +20,10 @@ mod tests {
             #[test]
             fn lexing() {
                 use crate::parser::lexer::{Token::{self, *}, Keyword::*};
-                let ss = StringStream::new("def func(a, b):\n\tx = a + \tb\n\treturn    x\n\n");
+                let ss = StringStream::new("def defunc(a, b):\n\tx = a + \tb\n\treturn    x\n\n");
                 let tokens = TokenStream::new(ss);
                 let res = 
-                vec![ WS(0), Kywrd(Def), Ident(String::from("func")), Symbl('('), Ident(String::from("a")), Symbl(','), Ident(String::from("b")), Symbl(')'), Symbl(':')
+                vec![ WS(0), Kywrd(Def), Ident(String::from("defunc")), Symbl('('), Ident(String::from("a")), Symbl(','), Ident(String::from("b")), Symbl(')'), Symbl(':')
                     , WS(4), Ident(String::from("x")), Symbl('='), Ident(String::from("a")), Symbl('+'), Ident(String::from("b"))
                     , WS(4), Kywrd(Return), Ident(String::from("x"))
                     , WS(0)

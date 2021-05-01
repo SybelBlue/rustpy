@@ -96,18 +96,8 @@ impl<C : Iterator<Item = char>> ParseStream<Token> for TokenStream<C> {
         for c in &mut self.char_iter {
             let file_pos = self.file_pos;
             self.file_pos.advance(c);
-            
-            if c.is_whitespace() { 
-                if c == '\n' {
-                    self.line_start = true;
-                }
-                if !built.is_empty() {
-                    return Ok(into_token(built))
-                }
-                if self.line_start {
-                    return self.parse_next();
-                }
-            } else if let Some(tkn) = as_symbol(c) {
+
+            if let Some(tkn) = as_symbol(c) {
                 return Ok(
                     if !built.is_empty() {
                         self.cached.push_back(tkn);
@@ -116,10 +106,22 @@ impl<C : Iterator<Item = char>> ParseStream<Token> for TokenStream<C> {
                         tkn
                     }
                 )
-            } else if matches!(c, '0'..='9' | 'a'..='z' | 'A'..='Z' | '_') {
-                built.push(c);
-            } else {
-                return Err(ParseError::from_str(format!("Bad char '{}'", c), file_pos));
+            }
+
+            match c {
+                '0'..='9' | 'a'..='z' | 'A'..='Z' | '_' => built.push(c),
+                _ if c.is_whitespace() => { 
+                    if c == '\n' {
+                        self.line_start = true;
+                    }
+                    if !built.is_empty() {
+                        return Ok(into_token(built))
+                    }
+                    if self.line_start {
+                        return self.parse_next();
+                    }
+                },
+                _ => return Err(ParseError::from_str(format!("Bad char '{}'", c), file_pos)),
             }
         }
         
