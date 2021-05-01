@@ -88,3 +88,7 @@ impl ParseStream<char> for FileStream {
         r.map_err(|e| e.with_src_path(self.src_path.clone()))
     }
 }
+
+pub fn skip_whitespace<S>(stream: &mut S) where S : ParseStream<char> {
+    while let Ok(_) = stream.try_match(vec![' ']) {}
+}
