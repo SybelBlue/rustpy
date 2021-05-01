@@ -60,6 +60,12 @@ pub struct TokenStream<C> where C : Iterator<Item = char> {
     file_pos: FilePos,
 }
 
+impl<C> TokenStream<C> where C : Iterator<Item = char> {
+    pub fn new(char_iter: C) -> Self {
+        Self { char_iter, file_pos: FilePos::new(), cached: VecDeque::new() }
+    }
+}
+
 impl<C> ParseStream<Token> for TokenStream<C> where C : Iterator<Item = char> {
     fn next(&mut self) -> ParseResult<Token> {
         if let Some(item) = self.cached.pop_front() {
