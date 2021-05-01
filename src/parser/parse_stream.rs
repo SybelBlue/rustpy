@@ -3,16 +3,8 @@ use std::fs::read_to_string;
 use crate::parser::*;
 
 pub trait ParseStream<T> {
-    fn next(&mut self) -> ParseResult<T>;
+    fn parse_next(&mut self) -> ParseResult<T>;
     fn try_match(&mut self, items: Vec<T>) -> ParseResult<Vec<T>>;
-}
-
-impl<T> Iterator for dyn ParseStream<T> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.next().ok()
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -37,7 +29,7 @@ impl StringStream {
 }
 
 impl ParseStream<char> for StringStream {
-    fn next(&mut self) -> ParseResult<char> {
+    fn parse_next(&mut self) -> ParseResult<char> {
         self.check_eof()?;
         let c = self.data[self.pos];
         self.pos += 1;
@@ -63,6 +55,14 @@ impl ParseStream<char> for StringStream {
     }
 }
 
+impl Iterator for StringStream {
+    type Item = char;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.parse_next().ok()
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct FileStream {
     src_path: String,
@@ -78,14 +78,22 @@ impl FileStream {
 }
 
 impl ParseStream<char> for FileStream {
-    fn next(&mut self) -> ParseResult<char> {
-        let r = self.string_stream.next();
+    fn parse_next(&mut self) -> ParseResult<char> {
+        let r = self.string_stream.parse_next();
         r.map_err(|e| e.with_src_path(self.src_path.clone()))
     }
 
     fn try_match(&mut self, items: Vec<char>) -> ParseResult<Vec<char>> {
         let r = self.string_stream.try_match(items);
         r.map_err(|e| e.with_src_path(self.src_path.clone()))
+    }
+}
+
+impl Iterator for FileStream {
+    type Item = char;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.parse_next().ok()
     }
 }
 

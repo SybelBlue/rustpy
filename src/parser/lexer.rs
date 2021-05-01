@@ -6,6 +6,7 @@ use super::parse_stream::ParseStream;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Token {
+    WS(u8),
     Ident(String),
     Kywrd(Keyword),
     Symbl(char),
@@ -14,11 +15,12 @@ pub enum Token {
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let (a, b) = match self {
+            Token::WS(n) => ("Whitespace", format!("{}", n)),
             Token::Ident(s) => ("Identifier", s.clone()),
             Token::Kywrd(k) => ("Keyword", format!("{:?}", k)),
-            Token::Symbl(s) => ("Symbol", format!("'{}'", s)),
+            Token::Symbl(s) => ("Symbol", format!("{}", s)),
         };
-        write!(f, "{} {:?}", a, b)
+        write!(f, "{} {}", a, b)
     }
 }
 
@@ -54,20 +56,21 @@ fn as_symbol(c: char) -> Option<Token> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct TokenStream<C> where C : Iterator<Item = char> {
+pub struct TokenStream<C : Iterator<Item = char>> {
     char_iter: C,
     cached: VecDeque<Token>,
     file_pos: FilePos,
+    line_start: bool,
 }
 
-impl<C> TokenStream<C> where C : Iterator<Item = char> {
+impl<C : Iterator<Item = char>> TokenStream<C> {
     pub fn new(char_iter: C) -> Self {
-        Self { char_iter, file_pos: FilePos::new(), cached: VecDeque::new() }
+        Self { char_iter, file_pos: FilePos::new(), cached: VecDeque::new(), line_start: true }
     }
 }
 
-impl<C> ParseStream<Token> for TokenStream<C> where C : Iterator<Item = char> {
-    fn next(&mut self) -> ParseResult<Token> {
+impl<C : Iterator<Item = char>> ParseStream<Token> for TokenStream<C> {
+    fn parse_next(&mut self) -> ParseResult<Token> {
         if let Some(item) = self.cached.pop_front() {
             return Ok(item);
         }
@@ -103,7 +106,7 @@ impl<C> ParseStream<Token> for TokenStream<C> where C : Iterator<Item = char> {
         let n = items.len() - self.cached.len();
         let mut rest = VecDeque::new();
         for _ in 0..n {
-            rest.push_back(self.next()?);
+            rest.push_back(self.parse_next()?);
         }
         self.cached.extend(rest.into_iter());
         for (a, b) in self.cached.iter().zip(items.iter()) {
@@ -112,5 +115,13 @@ impl<C> ParseStream<Token> for TokenStream<C> where C : Iterator<Item = char> {
             }
         }
         Ok(items)
+    }
+}
+
+impl<T: Iterator<Item = char>> Iterator for TokenStream<T> {
+    type Item = Token;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.parse_next().ok()
     }
 }
