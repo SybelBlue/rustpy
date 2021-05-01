@@ -41,23 +41,23 @@ impl ParseStream<char> for StringStream {
         self.check_eof()?;
         let c = self.data[self.pos];
         self.pos += 1;
-        self.file_pos.advance(&c);
+        self.file_pos.advance(c);
         Ok(c)
     }
 
     fn try_match(&mut self, items: Vec<char>) -> ParseResult<Vec<char>> {
         self.check_eof()?;
-        let mut f_pos = self.file_pos.clone();
+        let mut file_pos = self.file_pos.clone();
         for (&a, &b) in self.data[self.pos..].iter().zip(items.iter()) {
             if a != b {
                 return Err(
-                    ParseError::from_str(format!("Expected {}, got {}", b, a), f_pos)
+                    ParseError::mismatch(a, b, file_pos)
                 )
             } else {
-                f_pos.advance(&a)
+                file_pos.advance(a)
             }
         }
-        self.file_pos = f_pos;
+        self.file_pos = file_pos;
         self.pos += items.len();
         Ok(items)
     }

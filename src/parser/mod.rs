@@ -14,8 +14,8 @@ impl FilePos {
         Self { line: 1, col: 1 }
     }
 
-    pub fn advance(&mut self, c: &char) {
-        if *c == '\n' {
+    pub fn advance(&mut self, c: char) {
+        if c == '\n' {
             self.line += 1;
             self.col = 1;
         } else {
@@ -48,6 +48,11 @@ impl ParseError {
 
     pub fn with_src_path(&self, src_path: String) -> Self {
         Self { src_path: Some(src_path), msg: self.msg.clone(), file_pos: self.file_pos }
+    }
+
+    pub fn mismatch<T>(actual: T, expected: T, file_pos: FilePos) -> Self
+        where T : std::fmt::Display {
+        ParseError::from_str(format!("Expected {}, got {}", expected, actual), file_pos)
     }
 }
 
