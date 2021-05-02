@@ -1,6 +1,6 @@
 use std::{collections::VecDeque, fmt::Display, iter::Peekable};
 
-use crate::parser::*;
+use crate::old_parser::*;
 
 use super::parse_stream::ParseStream;
 

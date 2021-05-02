@@ -1,6 +1,6 @@
 use std::fs::read_to_string;
 
-use crate::parser::*;
+use crate::old_parser::*;
 
 pub trait ParseStream<T> {
     fn parse_next(&mut self) -> ParseResult<T>;

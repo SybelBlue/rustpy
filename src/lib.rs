@@ -1,10 +1,10 @@
-pub mod parser;
+pub mod old_parser;
 
 #[cfg(test)]
 mod tests {
-    mod parser {
+    mod old_parser {
         mod parse_stream {
-            use crate::parser::{lexer::TokenStream, parse_stream::{ParseStream, StringStream}};
+            use crate::old_parser::{lexer::TokenStream, parse_stream::{ParseStream, StringStream}};
             #[test]
             fn str_stream() {
                 let mut ss = StringStream::new("Hello World!");
@@ -19,7 +19,7 @@ mod tests {
 
             #[test]
             fn lexing() {
-                use crate::parser::lexer::{Token::{self, *}, Keyword::*};
+                use crate::old_parser::lexer::{Token::{self, *}, Keyword::*};
                 let ss = StringStream::new("def defunc(a, b):\n\tx = a + \tb\n\treturn    x\n\n");
                 let tokens = TokenStream::new(ss);
                 let res = 
